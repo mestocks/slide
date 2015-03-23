@@ -27,6 +27,8 @@ double tajimas_theta(int nsam, int pi) {
   return tajpi;
 }
 
+double zengs_theta(int nsam, 
+
 
 double tajimasD(int nsam, int s, double tw, double pi, double a1 = 0, double a2 = 0) {
   
