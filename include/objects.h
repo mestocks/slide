@@ -1,10 +1,4 @@
 
-#include <vector>
-#include <iostream>
-#include <algorithm>
-
-class CircularArray {
-
   // Provides a class implementation of a circular array.
   // An array of size 100 can be initialised like this:
 
@@ -14,36 +8,35 @@ class CircularArray {
 
   // carray.bump(4.3)
 
-  // This will update the array, and provide functions to return
-  // the new and the bumped value (i.e. the oldest value in the
-  // array that will be sacrificed for the new one). 
-  
+  // Items in the array can be accessed using indexing:
+
+  // carray[3]
+
+  // These indices are corrected, so that their location in
+  // the circular array is hidden. The indices therefore reflect
+  // the order in which they are added to the array, with older
+  // entries starting at 0, and the most recent entry at position
+  // winsize - 1.
+
+template<class Type>
+class CircularArray {
+
  private:
   int a;
   int b;
-
-  int start() {
-    if (a >= 0) {
-      return a;
-    } else {
-      return 0;
-    }
-  }
-
-  int end() {
-    return b;
-  }
+  int start() { if (a >= 0) { return a; } else { return 0; }}
+  int end() { return b; }
   
  public:
   int n;
   int winsize;
-  double old_value;
-  double new_value;
-  std::vector<double> array;
+  Type old_value;
+  Type new_value;
+  std::vector<Type> array;
   
   CircularArray(int);
   
-  double operator [](int index) {
+  Type operator [](int index) {
     int p = start();
     if (index < winsize - p) {
       return array[index + p];
@@ -52,16 +45,17 @@ class CircularArray {
     }
   }
 
-  template <typename Type>
-  
+
+  //template <typename Type>
   void bump(Type value) {
 
     if (n != winsize) { n++; }
 
     new_value = value;
-
+    
     if (a >= 0) {
       old_value = array[a];
+
     } else {
       old_value = 0;
     }
@@ -70,13 +64,20 @@ class CircularArray {
     b++;
     if (a == winsize) { a = 0; }
     if (b == winsize) { b = 0; }
-    
     array[b] = new_value;
+  }
+
+  void reset() {
+    a = 0 - winsize;
+    b = -1;
+    n = 0;
+    for (int i = 0; i < winsize; i++) { array[i] = 0; }
   }
 };
 
 // constructor
-CircularArray::CircularArray(int window_size) {
+template<class Type>
+CircularArray<Type>::CircularArray(int window_size) {
   
   winsize = window_size;
   a = 0 - winsize;
