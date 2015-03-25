@@ -24,15 +24,15 @@ class CircularArray {
  private:
   int a;
   int b;
+  int n;
+  int winsize;
+  std::vector<Type> array;
   int start() { if (a >= 0) { return a; } else { return 0; }}
   int end() { return b; }
   
  public:
-  int n;
-  int winsize;
   Type old_value;
   Type new_value;
-  std::vector<Type> array;
   
   CircularArray(int);
   
@@ -72,6 +72,10 @@ class CircularArray {
     b = -1;
     n = 0;
     for (int i = 0; i < winsize; i++) { array[i] = 0; }
+  }
+
+  int size() {
+    return n;
   }
 };
 

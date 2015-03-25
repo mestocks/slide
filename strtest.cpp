@@ -30,12 +30,12 @@ int main() {
     oarray.bump(a);
     sum += oarray.new_value - oarray.old_value;
 
-    if (oarray.n == lwin) {
+    if (oarray.size() == lwin) {
       std::cout << chr << " " << pos << " ";
       //for (int k = 0; k < oarray.n; k++) {
       //std::cout << oarray[k] << " ";
       //}
-      std::cout << sum / oarray.n << " ";
+      std::cout << sum / oarray.size() << " ";
       std::cout << std::endl;
       
     }
