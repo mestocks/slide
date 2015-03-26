@@ -56,6 +56,8 @@ void write( int nchrsites, int winsize, std::string chr, int pos, int nsam, int 
 
 int main(int argc, char *argv[]) {
 
+  // ... | slide nsam lwin lstep
+
   // stdin values
   int pos;
   std::string chr;
@@ -65,6 +67,7 @@ int main(int argc, char *argv[]) {
   // parameters etc...
   int nsam = atoi(argv[1]);
   int winsize = atoi(argv[2]);
+  int lstep = atoi(argv[3]);
 
   // temporary objects
   int n1;
@@ -73,6 +76,7 @@ int main(int argc, char *argv[]) {
   int ptmp;
   int ssum;
   int psum;
+  int step;
   int old_pos;
   int nchrsites;
   std::string old_chr;
@@ -90,6 +94,7 @@ int main(int argc, char *argv[]) {
   nsites = 0;
   old_pos = -1;
   nchrsites = 0;
+  step = 0;
   old_chr = "empty";
   
   while (std::cin >> chr >> pos >> strn1 >> strn2) {
@@ -107,9 +112,11 @@ int main(int argc, char *argv[]) {
       nchrsites = 0;
       old_chr = chr;
       old_pos = pos;
+      step = 0;
     }
     
     while (old_pos < pos - 1) {
+      step++;
       old_pos++;
       nchrsites++;
       narray.bump(0);
@@ -119,7 +126,10 @@ int main(int argc, char *argv[]) {
       psum += parray.new_value - parray.old_value;
       nsites += narray.new_value - narray.old_value;
 
-      write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
+      if (step == lstep) {
+	write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
+	step = 0;
+      }
     }
     old_pos = pos;
 
@@ -148,17 +158,20 @@ int main(int argc, char *argv[]) {
       ptmp = n1 * n2;
     }
 
+    step++;
     nchrsites++;
-
-    nsites += narray.new_value - narray.old_value;
-
-    sarray.bump(stmp);
-    ssum += sarray.new_value - sarray.old_value;
     
     parray.bump(ptmp);
+    sarray.bump(stmp);
+
+    nsites += narray.new_value - narray.old_value;
+    ssum += sarray.new_value - sarray.old_value;
     psum += parray.new_value - parray.old_value;
 
-    write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
+    if (step == lstep) {
+      write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
+      step = 0;
+    }
   }
   return 0;
 }
