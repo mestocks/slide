@@ -1,65 +1,164 @@
-
+#include <cmath>
 #include <vector>
+#include <string>
 #include <iostream>
 #include <algorithm>
 
+#include <objects.h>
 #include <pgstats.h>
+
+int midpoint( int endpos, int winsize ) {
+  return endpos - std::floor(winsize / 2.0);
+}
+
+void write( int nchrsites, int winsize, std::string chr, int pos, int nsam, int nsites, int ssum, int psum ) {
+
+  if (nchrsites >= winsize) {
+
+    double tw;
+    double tp;
+    double tajd;
+
+    if (ssum == 0) {
+      tw = 0;
+    } else {
+      tw = wattersons_theta(nsam, ssum);
+    }
+
+    if (psum == 0) {
+      tp = 0;
+    } else {
+      tp = tajimas_theta(nsam, psum);
+    }
+    
+    if (nsites > 0) {
+      std::cout << chr << " ";
+      std::cout << midpoint(pos, winsize) << " ";
+      std::cout << nsam << " " ;
+      std::cout << nsites << " ";
+      std::cout << ssum << " ";
+      std::cout << tw / nsites << " ";
+      std::cout << tp / nsites << " ";
+      
+      if (tw == 0 && tp == 0) {
+	std::cout << "NA" << std::endl;
+      } else {
+	tajd = tajimasD(nsam, ssum, tw, tp);
+	std::cout << tajd << std::endl;
+      }
+      
+    } else {
+      std::cout << chr << " ";
+      std::cout << midpoint(pos, winsize) << " NA ";
+      std::cout << nsites << " NA NA NA NA" << std::endl;
+    }}
+}
 
 int main(int argc, char *argv[]) {
 
-  int s;
-  int n;
-  int N1;
-  int N2;
-  int pi;
-  double tw;
-  double tp;
-  double tajd;
+  // stdin values
+  int pos;
+  std::string chr;
+  std::string strn1;
+  std::string strn2;
+
+  // parameters etc...
+  int nsam = atoi(argv[1]);
+  int winsize = atoi(argv[2]);
+
+  // temporary objects
+  int n1;
+  int n2;
+  int stmp;
+  int ptmp;
+  int ssum;
+  int psum;
+  int old_pos;
+  int nchrsites;
+  std::string old_chr;
+  CircularArray<int> sarray(winsize);
+  CircularArray<int> parray(winsize);
+  CircularArray<int> narray(winsize);
+
+  // stdout values (tw, tp & tajd declared in write())
+  int ss;
+  int nsites;
+
+  // init values
+  ssum = 0;
+  psum = 0;
+  nsites = 0;
+  old_pos = -1;
+  nchrsites = 0;
+  old_chr = "empty";
   
-  size_t winsize = atoi(argv[1]);
-  std::vector<int> sarray(winsize);
-  std::vector<int> parray(winsize);
-
-  int b = 0;
-  int swin = 0;
-  int pwin = 0;
-  int a = 1 - winsize;
-  
-  while (std::cin >> N1 >> N2) {
-
-    // 
-
-    n = N1 + N2;
+  while (std::cin >> chr >> pos >> strn1 >> strn2) {
     
-    if (N1 == 0 || N2 == 0) {
-      s = 0;
-      pi = 0;
+    if (old_chr == "empty") { old_chr = chr; }
+    if (old_pos == -1) { old_pos = pos; }
+
+    if (old_chr != chr) {
+      sarray.reset();
+      parray.reset();
+      narray.reset();
+      ssum = 0;
+      psum = 0;
+      nsites = 0;
+      nchrsites = 0;
+      old_chr = chr;
+      old_pos = pos;
+    }
+    
+    while (old_pos < pos - 1) {
+      old_pos++;
+      nchrsites++;
+      narray.bump(0);
+      sarray.bump(0);
+      parray.bump(0);
+      ssum += sarray.new_value - sarray.old_value;
+      psum += parray.new_value - parray.old_value;
+      nsites += narray.new_value - narray.old_value;
+
+      write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
+    }
+    old_pos = pos;
+
+    if (strn1 == "NA" || strn2 == "NA") {
+      narray.bump(0);
+      n1 = 0;
+      n2 = 0;
     } else {
-      s = 1;
-      pi = N1 * N2;
+      n1 = std::stoi(strn1);
+      n2 = std::stoi(strn2);
+      
+      if (n1 + n2 != nsam) {
+	narray.bump(0);
+	n1 = 0;
+	n2 = 0;
+      } else {
+	narray.bump(1);
+      }
     }
-
-    swin += s;
-    pwin += pi;
-    if (a >= 0) {
-      swin -= sarray[b];
-      pwin -= parray[b];
-    }
-
-    sarray[b] = s;
-    parray[b] = pi;
-
-    tw = wattersons_theta(n, swin);
-    tp = tajimas_theta(n, pwin);
-    tajd = tajimasD(n, swin, tw, tp);
     
-    std::cout << swin << " " << tw << " " << tp << " " << tajd << std::endl;
+    if (n1 == 0 || n2 == 0) {
+      stmp = 0;
+      ptmp = 0;
+    } else {
+      stmp = 1;
+      ptmp = n1 * n2;
+    }
 
-    a++;
-    b++;
-    if (a == winsize) { a = 0; }
-    if (b == winsize) { b = 0; }
+    nchrsites++;
+
+    nsites += narray.new_value - narray.old_value;
+
+    sarray.bump(stmp);
+    ssum += sarray.new_value - sarray.old_value;
+    
+    parray.bump(ptmp);
+    psum += parray.new_value - parray.old_value;
+
+    write(nchrsites, winsize, chr, old_pos, nsam, nsites, ssum, psum);
   }
-
   return 0;
 }

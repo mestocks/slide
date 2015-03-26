@@ -8,4 +8,4 @@ LIBS = $(addprefix -L ,$(libs))
 all:	slide slmean
 
 %:	%.cpp
-	g++ $(LIBS) $(INCLUDE) -o $@ $^ -lgsl -lgslcblas
+	g++ -std=c++0x $(LIBS) $(INCLUDE) -o $@ $^ -lgsl -lgslcblas
