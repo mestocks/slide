@@ -5,9 +5,9 @@ INCLUDE = $(addprefix -I ,$(incs))
 LIBS = $(addprefix -L ,$(libs))
 
 .PHONY:	all
-all:	sltheta slmean #testhtslib
+all:	bin/sltheta bin/slmean #testhtslib
 
-%:	%.cpp
+bin/%:	src/%.cpp
 	g++ -std=c++0x $(LIBS) $(INCLUDE) -o $@ $^ -lgsl -lgslcblas
 
 testhtslib:	testhtslib.cpp
