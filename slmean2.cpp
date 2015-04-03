@@ -11,36 +11,68 @@
 #include <objects.h>
 #include <strparse.h>
 
-void calcmeans(std::istream& input, std::vector<int> columns, int winsize) {
 
-  int a;
-  int b;
-  int ncols = columns.size();
+
+void calcmeans(std::istream& input,
+	       std::vector<int> columns,
+	       int winsize,
+	       std::string sep = " ") {
+
+  int ncols;
   std::string line;
   std::vector<double> sums;
+  std::vector<double> nsums;
+  std::vector<CircularArray<int>> narrays;
   std::vector<CircularArray<double>> carrays;
-  
+
+  // Initialise an array containing CircularArrays
+  ncols = columns.size();
   for (int n = 0; n < ncols; n++) {
     sums.push_back(0);
+    nsums.push_back(0);
+    CircularArray<int> narray_init(winsize);
     CircularArray<double> carray_init(winsize);
+    narrays.push_back(narray_init);
     carrays.push_back(carray_init);
   }
 
-  std::string sep = " ";
+  int nsites = 0;
   while (getline(input, line)) {
-    size_t pos = 0;
+
+    nsites++;
+    
+    double item;
+    double nitem;
     int icol = 0;
     int iarray = 0;
+    size_t pos = 0;
     std::string token;
     
     while ((pos = line.find(sep)) != std::string::npos) {
       token = line.substr(0, pos);
       
       if (std::binary_search(columns.begin(), columns.end(), icol)) {
-	carrays[iarray].bump(stod(token));
+
+	if (token == "NA") {
+	  item = 0;
+	  nitem = 0;
+	} else {
+	  item = stod(token);
+	  nitem = 1;
+	}
+	carrays[iarray].bump(item);
+	narrays[iarray].bump(nitem);
+	
 	sums[iarray] += carrays[iarray].new_value - carrays[iarray].old_value;
-	//
-	std::cout << sums[iarray] / 2 << sep;
+	nsums[iarray] += narrays[iarray].new_value - narrays[iarray].old_value;
+
+	if (nsites >= winsize) {
+	  if (nsums[iarray] > 0) {
+	    std::cout << sums[iarray] / nsums[iarray] << sep;
+	  } else {
+	    std::cout << "NA" << sep;
+	  }
+	}
 	iarray++;
       }
       line.erase(0, pos + sep.length());
@@ -48,14 +80,33 @@ void calcmeans(std::istream& input, std::vector<int> columns, int winsize) {
     }
     
     token = line.substr(0, pos);
-    if (std::binary_search(columns.begin(), columns.end(), icol)) {
-      carrays[iarray].bump(stod(token));
-      sums[iarray] += carrays[iarray].new_value - carrays[iarray].old_value;
-      //
-      std::cout << sums[iarray] / 2 << sep;
-      iarray++;
+      if (std::binary_search(columns.begin(), columns.end(), icol)) {
+
+	if (token == "NA") {
+	  item = 0;
+	  nitem = 0;
+	} else {
+	  item = stod(token);
+	  nitem = 1;
+	}
+	carrays[iarray].bump(item);
+	narrays[iarray].bump(nitem);
+	
+	sums[iarray] += carrays[iarray].new_value - carrays[iarray].old_value;
+	nsums[iarray] += narrays[iarray].new_value - narrays[iarray].old_value;
+
+	if (nsites >= winsize) {
+	  if (nsums[iarray] > 0) {
+	    std::cout << sums[iarray] / nsums[iarray];
+	  } else {
+	    std::cout << "NA";
+	  }
+	}
+	iarray++;
     }
-    std::cout << std::endl;
+    if (nsites >= winsize) {
+      std::cout << std::endl;
+    }
   }  
 }
 
