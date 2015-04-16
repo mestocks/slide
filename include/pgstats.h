@@ -2,6 +2,21 @@
 #include <math.h>
 #include <gsl/gsl_sf_gamma.h>
 
+double Dxy(int xa, int xb, int ya, int yb) {
+
+  double dxy;
+  
+  double d = (xa * yb) + (xb * ya);
+  double n12 = (xa + xb) * (ya + yb);
+
+  if (d == 0) {
+    dxy = 0.0;
+  } else {
+    dxy = d / n12;
+  }
+  return dxy;
+}
+
 double wattersons_theta(int nsam, int segsites, double a1 = 0) {
 
   if (a1 == 0) {

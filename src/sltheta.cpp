@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <iterator>
 #include <algorithm>
 
 #include <objects.h>
@@ -134,6 +135,7 @@ int main(int argc, char *argv[]) {
     old_pos = pos;
 
     if (strn1 == "NA" || strn2 == "NA") {
+
       narray.bump(0);
       n1 = 0;
       n2 = 0;

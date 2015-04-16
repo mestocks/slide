@@ -8,6 +8,7 @@ LIBS = $(addprefix -L ,$(libs))
 all:	bin/sltheta bin/slmean #testhtslib
 
 bin/%:	src/%.cpp
+	if [ ! -d "bin/" ]; then mkdir bin; fi
 	g++ -std=c++0x $(LIBS) $(INCLUDE) -o $@ $^ -lgsl -lgslcblas
 
 testhtslib:	testhtslib.cpp

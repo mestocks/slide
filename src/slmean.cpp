@@ -16,10 +16,12 @@
 void calcmeans(std::istream& input,
 	       std::vector<int> columns,
 	       int winsize,
+	       int step = 1,
 	       std::string sep = " ") {
 
   int ncols;
   std::string line;
+  //std::string old_factor;
   std::vector<double> sums;
   std::vector<double> nsums;
   std::vector<CircularArray<int>> narrays;
@@ -36,10 +38,17 @@ void calcmeans(std::istream& input,
     carrays.push_back(carray_init);
   }
 
+  int st = 0;
   int nsites = 0;
+  //old_factor = "empty";
   while (getline(input, line)) {
 
+
     nsites++;
+    if (nsites >= winsize) {
+      st++;
+    }
+    //if (old_factor == "empty") { old_factor = chr; }
     
     double item;
     double nitem;
@@ -67,8 +76,10 @@ void calcmeans(std::istream& input,
 	nsums[iarray] += narrays[iarray].new_value - narrays[iarray].old_value;
 
 	if (nsites >= winsize) {
-	  if (nsums[iarray] > 0) { std::cout << sums[iarray] / nsums[iarray] << sep; }
-	  else { std::cout << "NA" << sep; }
+	  if (st == step) {
+	    if (nsums[iarray] > 0) { std::cout << sums[iarray] / nsums[iarray] << sep; }
+	    else { std::cout << "NA" << sep; }
+	  }
 	}
 	
 	iarray++;
@@ -76,8 +87,13 @@ void calcmeans(std::istream& input,
       line.erase(0, pos + sep.length());
       icol++;
     }
-    if (nsites >= winsize) { std::cout << std::endl; }
-  }  
+    if (nsites >= winsize) {
+      if (st == step) {
+	std::cout << std::endl;
+	st = 0;
+      }
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -87,22 +103,24 @@ int main(int argc, char *argv[]) {
   // [-k 1] [-k 3,4] [-k 3-7] [-k 1,3,5-8,9]
   
   std::map<std::string, int> argtype {
-    {"-k", 1}, {"-w", 1}
+    {"-k", 1}, {"-w", 1}, {"-s", 1}
   };
 
   std::map<std::string, std::string> argopts {
-    {"-k", "1"}, {"-w", "1000"}
+    {"-k", "1"}, {"-w", "1000"}, {"-s", "1"}
   };
   
   argopts = argasso(argc, argv, argtype, argopts);
-  
+
+  //int fcols = stoi(argopts["-f"]);
+  int step = stoi(argopts["-s"]);
   int winsize = stoi(argopts["-w"]);
   std::string meancols = argopts["-k"];
   std::vector<int> columns = parse_cols(meancols);
   for (int z = 0; z < columns.size(); z++) { columns[z]--; }
   std::sort(columns.begin(), columns.end());
   
-  calcmeans(std::cin, columns, winsize);
+  calcmeans(std::cin, columns, winsize, step = step);
   
   return 0;
 }
