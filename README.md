@@ -12,3 +12,11 @@ Notes:
 - The mean will only be calculated and output produced once *w* lines of input have been produced (i.e once the window is "full").
 - Missing values are indicated by "NA" and will be ignored (i.e. the mean will be calculated over all other values in the window).
 - The output is according to the input column order (not according to input given by ```-k```.
+
+**Installation**
+
+- Download zip file
+- Unzip file
+- Enter the directory that this creates
+- type ```make```
+- Add *path_to_this_directory/bin* to your ```$PATH``` to run from anywhere
