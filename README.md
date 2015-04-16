@@ -15,7 +15,7 @@ Notes:
 - Missing values are indicated by "NA" and will be ignored (i.e. the mean will be calculated over all other values in the window).
 - The output is according to the input column order (not according to input given by ```-k```).
 
-**Installation**
+**Installation** - requires Gnu Scientific Library (*libgsl*)
 
 - Download zip file
 - Unzip file
