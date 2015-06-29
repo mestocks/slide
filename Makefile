@@ -11,5 +11,5 @@ bin/%:	src/%.cpp
 	if [ ! -d "bin/" ]; then mkdir bin; fi
 	g++ -std=c++0x $(LIBS) $(INCLUDE) -o $@ $^ -lgsl -lgslcblas
 
-testhtslib:	testhtslib.cpp
-	g++ -o $@ $^ -l hts -L /usr/local/lib/
+#testhtslib:	testhtslib.cpp
+#	g++ -o $@ $^ -l hts -L /usr/local/lib/
