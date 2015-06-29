@@ -60,7 +60,7 @@ void calcmeans(std::istream& input,
     
     while (delcheck) {
       pos = line.find(sep);
-      if (pos == std::string::npos) { std::cout << "del" << std::endl; delcheck = 0; }
+      if (pos == std::string::npos) { delcheck = 0; }
       
       token = line.substr(0, pos);
       
